@@ -5,16 +5,16 @@ namespace Ekok\EventDispatcher;
 class Handler
 {
     /** @var string|callable */
-    public $handler;
+    private $handler;
 
     /** @var int|null */
-    public $position;
+    private $position;
 
     /** @var int */
-    public $priority = 0;
+    private $priority = 0;
 
     /** @var bool */
-    public $once = false;
+    private $once = false;
 
     public function __construct(
         callable|string $handler,
@@ -26,6 +26,21 @@ class Handler
         $this->priority = $priority ?? 0;
         $this->once = $once ?? false;
         $this->position = $position;
+    }
+
+    public function getHandler(): string|callable
+    {
+        return $this->handler;
+    }
+
+    public function isOnce(): bool
+    {
+        return $this->once;
+    }
+
+    public function getPriority(): int
+    {
+        return $this->priority;
     }
 
     public function getPosition(): int|null

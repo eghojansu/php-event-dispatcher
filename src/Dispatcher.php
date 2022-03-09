@@ -4,8 +4,6 @@ namespace Ekok\EventDispatcher;
 
 use Ekok\Container\Di;
 use Ekok\Utils\Arr;
-use Psr\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 class Dispatcher
 {
@@ -28,9 +26,9 @@ class Dispatcher
         Arr::some(
             $handlers,
             function (Handler $handler) use ($event, $name) {
-                $this->di->call($handler->handler, $event);
+                $this->di->call($handler->getHandler(), $event);
 
-                if ($handler->once) {
+                if ($handler->isOnce()) {
                     $this->off($name, $handler->getPosition());
                 }
 
@@ -123,13 +121,13 @@ class Dispatcher
         if (null === $sorted && isset($this->events[$name])) {
             $sorted = $this->events[$name];
 
-            usort($sorted, static fn (Handler $a, Handler $b) => $b->priority <=> $a->priority);
+            usort($sorted, static fn (Handler $a, Handler $b) => $b->getPriority() <=> $a->getPriority());
         }
 
         return $sorted ?? array();
     }
 
-    protected function processSubscribe(EventSubscriberInterface|string $subscriber, string|int $event, array|string|null $subscribe): void
+    private function processSubscribe(EventSubscriberInterface|string $subscriber, string|int $event, array|string|null $subscribe): void
     {
         $arguments = array();
         $method = $subscribe ?? $event;
