@@ -41,6 +41,13 @@ class Dispatcher
         return $this;
     }
 
+    public function addSubscribers(array $subscribers): static
+    {
+        array_walk($subscribers, fn($subscriber) => $this->addSubscriber($subscriber));
+
+        return $this;
+    }
+
     public function addSubscriber(EventSubscriberInterface|string $subscriber): static
     {
         if (is_string($subscriber) && !is_subclass_of($subscriber, EventSubscriberInterface::class)) {
@@ -61,6 +68,13 @@ class Dispatcher
                 $subscribe,
             ),
         );
+
+        return $this;
+    }
+
+    public function addListeners(array $listeners): static
+    {
+        array_walk($listeners, fn($args, string $eventName) => $this->on($eventName, ...((array) $args)));
 
         return $this;
     }

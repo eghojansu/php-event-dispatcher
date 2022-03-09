@@ -52,7 +52,7 @@ class DispatcherTest extends \Codeception\Test\Unit
 
     public function testSubscriber()
     {
-        $this->dispatcher->addSubscriber(FooSubscriber::class);
+        $this->dispatcher->addSubscribers(array(FooSubscriber::class));
 
         // first call
         $this->dispatcher->dispatch($event = new Event('event_foo'));
@@ -81,5 +81,19 @@ class DispatcherTest extends \Codeception\Test\Unit
         $this->expectExceptionMessage('Subscriber stdClass should implements Ekok\\EventDispatcher\\EventSubscriberInterface');
 
         $this->dispatcher->addSubscriber(stdClass::class);
+    }
+
+    public function testAddListeners()
+    {
+        $called = false;
+
+        $this->dispatcher->addListeners(array(
+            'foo' => function() use (&$called) {
+                $called = true;
+            },
+        ));
+        $this->dispatcher->dispatch(new Event('foo'));
+
+        $this->assertTrue($called);
     }
 }
