@@ -11,7 +11,6 @@ class Dispatcher
 {
     private $events = array();
     private $sorted = array();
-    private $maps = array();
 
     public function __construct(private Di $di)
     {}
@@ -81,14 +80,12 @@ class Dispatcher
 
     public function on(string $eventName, callable|string $handler, int $priority = null, bool $once = false): static
     {
-        $lname = strtolower($eventName);
-        $name = $this->maps[$lname] ?? $eventName;
+        $name = strtolower($eventName);
         $events = &$this->events[$name];
 
         $events[] = new Handler($handler, $priority, $once, count($events ?? array()));
 
         $this->sorted[$name] = null;
-        $this->maps[$lname] = $eventName;
 
         return $this;
     }
@@ -100,11 +97,10 @@ class Dispatcher
 
     public function off(string $eventName, int $pos = null): static
     {
-        $lname = strtolower($eventName);
-        $name = $this->maps[$lname] ?? $eventName;
+        $name = strtolower($eventName);
 
         if (null === $pos) {
-            unset($this->events[$name], $this->maps[$lname]);
+            unset($this->events[$name]);
         } else {
             unset($this->events[$name][$pos]);
             array_walk($this->events[$name], fn(Handler $handler, $pos) => $handler->setPosition($pos));
@@ -115,9 +111,9 @@ class Dispatcher
         return $this;
     }
 
-    public function getHandlers(string $eventName): array
+    private function getHandlers(string $eventName): array
     {
-        $name = $this->maps[strtolower($eventName)] ?? $eventName;
+        $name = strtolower($eventName);
         $sorted = &$this->sorted[$name];
 
         if (null === $sorted && isset($this->events[$name])) {
