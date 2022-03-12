@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Ekok\EventDispatcher;
 
 use Ekok\Utils\Arr;
-use Ekok\Utils\Str;
 use Ekok\Container\Di;
 
 class Dispatcher
@@ -18,7 +17,7 @@ class Dispatcher
 
     public function dispatch(Event $event, string $eventName = null, bool $once = false): static
     {
-        $name = $eventName ?? $event->getName() ?? Str::className(get_class($event), true);
+        $name = $eventName ?? $event->getName() ?? get_class($event);
         $handlers = $this->getHandlers($name);
 
         if ($once) {
