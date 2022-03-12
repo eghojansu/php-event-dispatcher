@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Ekok\EventDispatcher;
 
-use Ekok\Utils\Str;
-
 class Event
 {
     private $name;
@@ -26,7 +24,7 @@ class Event
 
     public function getName(): string|null
     {
-        return $this->name ?? ($this->name = Str::className(static::class, true));
+        return $this->name;
     }
 
     public function isPropagationStopped(): bool
