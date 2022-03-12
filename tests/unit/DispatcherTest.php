@@ -38,7 +38,7 @@ class DispatcherTest extends \Codeception\Test\Unit
         }, 99);
 
         // first call
-        $this->dispatcher->dispatch($event = new Event('foo'));
+        $this->dispatcher->dispatch($event = Event::named('foo'));
         $this->assertSame(array(5, 1, 2, 3), $event->data);
 
         // second call
@@ -46,7 +46,7 @@ class DispatcherTest extends \Codeception\Test\Unit
         $this->assertSame(array(5, 1, 3), $event->data);
 
         // third call
-        $this->dispatcher->dispatch($event = new Event('foo'));
+        $this->dispatcher->dispatch($event = Event::named('foo'));
         $this->assertObjectNotHasAttribute('data', $event);
     }
 
@@ -55,23 +55,23 @@ class DispatcherTest extends \Codeception\Test\Unit
         $this->dispatcher->addSubscribers(array(FooSubscriber::class));
 
         // first call
-        $this->dispatcher->dispatch($event = new Event('event_foo'));
+        $this->dispatcher->dispatch($event = Event::named('event_foo'));
         $this->assertSame(array('second', 'first', 'third'), $event->data);
 
         // second call
-        $this->dispatcher->dispatch($event = new Event('event_foo'));
+        $this->dispatcher->dispatch($event = Event::named('event_foo'));
         $this->assertSame(array('second', 'first'), $event->data);
 
         // eventSameAsMethod
-        $this->dispatcher->dispatch($event = new Event('eventSameAsMethod'));
+        $this->dispatcher->dispatch($event = Event::named('eventSameAsMethod'));
         $this->assertSame(array('eventSameAsMethod'), $event->data);
 
         // event_bar
-        $this->dispatcher->dispatch($event = new Event('event_bar'));
+        $this->dispatcher->dispatch($event = Event::named('event_bar'));
         $this->assertSame(array('method_bar'), $event->data);
 
         // eventSameAsMethod2
-        $this->dispatcher->dispatch($event = new Event('eventSameAsMethod2'));
+        $this->dispatcher->dispatch($event = Event::named('eventSameAsMethod2'));
         $this->assertSame(array('eventSameAsMethod2'), $event->data);
     }
 
@@ -92,7 +92,7 @@ class DispatcherTest extends \Codeception\Test\Unit
                 $called = true;
             },
         ));
-        $this->dispatcher->dispatch(new Event('foo'));
+        $this->dispatcher->dispatch(Event::named('foo'));
 
         $this->assertTrue($called);
     }

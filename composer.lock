@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/eghojansu/php-container.git",
-                "reference": "64dbe637e6ecb4a850ded62d5bda7f63fbf08bc4"
+                "reference": "4f39f54b8ff6e6c76b8920a7a9e2631e60b1fec7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eghojansu/php-container/zipball/64dbe637e6ecb4a850ded62d5bda7f63fbf08bc4",
-                "reference": "64dbe637e6ecb4a850ded62d5bda7f63fbf08bc4",
+                "url": "https://api.github.com/repos/eghojansu/php-container/zipball/4f39f54b8ff6e6c76b8920a7a9e2631e60b1fec7",
+                "reference": "4f39f54b8ff6e6c76b8920a7a9e2631e60b1fec7",
                 "shasum": ""
             },
             "require": {
@@ -51,7 +51,7 @@
                 "issues": "https://github.com/eghojansu/php-container/issues",
                 "source": "https://github.com/eghojansu/php-container/tree/master"
             },
-            "time": "2022-03-09T09:37:09+00:00"
+            "time": "2022-03-11T15:49:26+00:00"
         },
         {
             "name": "ekok/php-utils",
@@ -59,12 +59,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/eghojansu/php-utils.git",
-                "reference": "260051ad3afe15b28e5a9ffc4fca7cba8e927d2e"
+                "reference": "4edc4d2914b0b65d891a1f690be95eb71bff534c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eghojansu/php-utils/zipball/260051ad3afe15b28e5a9ffc4fca7cba8e927d2e",
-                "reference": "260051ad3afe15b28e5a9ffc4fca7cba8e927d2e",
+                "url": "https://api.github.com/repos/eghojansu/php-utils/zipball/4edc4d2914b0b65d891a1f690be95eb71bff534c",
+                "reference": "4edc4d2914b0b65d891a1f690be95eb71bff534c",
                 "shasum": ""
             },
             "require": {
@@ -97,7 +97,7 @@
                 "issues": "https://github.com/eghojansu/php-utils/issues",
                 "source": "https://github.com/eghojansu/php-utils/tree/master"
             },
-            "time": "2022-03-09T08:53:32+00:00"
+            "time": "2022-03-12T16:26:52+00:00"
         }
     ],
     "packages-dev": [
@@ -4579,5 +4579,5 @@
         "php": ">=8.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.0.0"
 }

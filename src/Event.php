@@ -4,19 +4,29 @@ declare(strict_types=1);
 
 namespace Ekok\EventDispatcher;
 
+use Ekok\Utils\Str;
+
 class Event
 {
     private $name;
     private $propagationStopped = false;
 
-    public function __construct(string $name = null)
+    public static function createDefault(): static
     {
-        $this->setName($name);
+        return new static();
+    }
+
+    public static function named(string $name): static
+    {
+        $self = self::createDefault();
+        $self->name = $name;
+
+        return $self;
     }
 
     public function getName(): string|null
     {
-        return $this->name;
+        return $this->name ?? ($this->name = Str::className(static::class, true));
     }
 
     public function isPropagationStopped(): bool
@@ -27,13 +37,6 @@ class Event
     public function stopPropagation(): static
     {
         $this->propagationStopped = true;
-
-        return $this;
-    }
-
-    protected function setName(string|null $name): static
-    {
-        $this->name = $name;
 
         return $this;
     }
