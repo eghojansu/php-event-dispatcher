@@ -104,4 +104,12 @@ class DispatcherTest extends \Codeception\Test\Unit
 
         $this->assertTrue($event->isPropagationStopped());
     }
+
+    public function testEventName()
+    {
+        $this->dispatcher->on(MyEvent::class, fn(MyEvent $event) => $event->stopPropagation());
+
+        $this->dispatcher->dispatch($event = new MyEvent());
+        $this->assertTrue($event->isPropagationStopped());
+    }
 }

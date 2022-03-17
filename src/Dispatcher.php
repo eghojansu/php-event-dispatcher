@@ -17,8 +17,14 @@ class Dispatcher
 
     public function dispatch(Event $event, string $eventName = null, bool $once = false): static
     {
-        $name = $eventName ?? $event->getName() ?? get_class($event);
+        $className = get_class($event);
+        $name = $eventName ?? $event->getName() ?? $className;
         $handlers = $this->getHandlers($name);
+
+        if (!$handlers && $name !== $className) {
+            $name = get_class($event);
+            $handlers = $this->getHandlers($name);
+        }
 
         if ($once) {
             $this->off($name);
@@ -116,9 +122,7 @@ class Dispatcher
         $name = strtolower($eventName);
         $sorted = &$this->sorted[$name];
 
-        if (null === $sorted && isset($this->events[$name])) {
-            $sorted = $this->events[$name];
-
+        if (null === $sorted && ($sorted = $this->events[$name] ?? null)) {
             usort($sorted, static fn (Handler $a, Handler $b) => $b->getPriority() <=> $a->getPriority());
         }
 
