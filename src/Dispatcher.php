@@ -5,43 +5,28 @@ declare(strict_types=1);
 namespace Ekok\EventDispatcher;
 
 use Ekok\Utils\Arr;
+use Ekok\Utils\Str;
 use Ekok\Container\Di;
 
 class Dispatcher
 {
-    private $events = array();
-    private $sorted = array();
+    /** @var array */
+    private $handlers = array();
 
     public function __construct(private Di $di)
     {}
 
     public function dispatch(Event $event, string $eventName = null, bool $once = false): static
     {
-        $className = get_class($event);
-        $name = $eventName ?? $event->getName() ?? $className;
-        $handlers = $this->getHandlers($name);
+        $handlers = $this->getHandlers(get_class($event), $eventName ?? $event->getName());
 
-        if (!$handlers && $name !== $className) {
-            $name = get_class($event);
-            $handlers = $this->getHandlers($name);
-        }
+        array_walk($handlers, function (Handler $handler, string $key) use ($event, $once) {
+            if ($once || $handler->isOnce()) {
+                unset($this->handlers[$key]);
+            }
 
-        if ($once) {
-            $this->off($name);
-        }
-
-        Arr::some(
-            $handlers,
-            function (Handler $handler) use ($event, $name) {
-                $this->di->call($handler->getHandler(), $event);
-
-                if ($handler->isOnce()) {
-                    $this->off($name, $handler->getPosition());
-                }
-
-                return $event->isPropagationStopped();
-            },
-        );
+            $event->isPropagationStopped() || $this->di->call($handler->getCallable(), $event);
+        });
 
         return $this;
     }
@@ -63,16 +48,13 @@ class Dispatcher
             ));
         }
 
-        $subscribes = array($subscriber, 'getSubscribedEvents');
+        $subscribes = $subscriber::getSubscribedEvents();
 
-        Arr::each(
-            $subscribes(),
-            fn($subscribe, $event) => $this->processSubscribe(
-                $subscriber,
-                $event,
-                $subscribe,
-            ),
-        );
+        array_walk($subscribes, fn($subscribe, $event) => $this->processSubscribe(
+            $subscriber,
+            $event,
+            $subscribe,
+        ));
 
         return $this;
     }
@@ -84,14 +66,28 @@ class Dispatcher
         return $this;
     }
 
-    public function on(string $eventName, callable|string $handler, int $priority = null, bool $once = false): static
-    {
-        $name = strtolower($eventName);
-        $events = &$this->events[$name];
+    public function on(
+        string $eventName,
+        callable|string $handler,
+        int $priority = null,
+        bool $once = false,
+        int $id = null,
+    ): static {
+        $wid = $id ?? $this->getNextHandlerId($eventName);
+        $key = "$eventName.$wid";
 
-        $events[] = new Handler($handler, $priority, $once, count($events ?? array()));
+        $this->handlers[$key] = new Handler(
+            $eventName,
+            $handler,
+            $priority,
+            $once,
+            $wid,
+        );
 
-        $this->sorted[$name] = null;
+        uasort(
+            $this->handlers,
+            static fn (Handler $a, Handler $b) => $b->getPriority() <=> $a->getPriority(),
+        );
 
         return $this;
     }
@@ -101,32 +97,37 @@ class Dispatcher
         return $this->on($eventName, $handler, $priority, true);
     }
 
-    public function off(string $eventName, int $pos = null): static
+    public function off(string $eventName, int $id = null): static
     {
-        $name = strtolower($eventName);
+        $handlers = $this->getHandlers($eventName, null, $id);
 
-        if (null === $pos) {
-            unset($this->events[$name]);
-        } else {
-            unset($this->events[$name][$pos]);
-            array_walk($this->events[$name], fn(Handler $handler, $pos) => $handler->setPosition($pos));
-        }
-
-        unset($this->sorted[$name]);
+        array_walk($handlers, function(...$args) {
+            unset($this->handlers[$args[1]]);
+        });
 
         return $this;
     }
 
-    private function getHandlers(string $eventName): array
+    private function getNextHandlerId(string $eventName): int
     {
-        $name = strtolower($eventName);
-        $sorted = &$this->sorted[$name];
+        $last = 0;
+        $founds = $this->getHandlers($eventName);
 
-        if (null === $sorted && ($sorted = $this->events[$name] ?? null)) {
-            usort($sorted, static fn (Handler $a, Handler $b) => $b->getPriority() <=> $a->getPriority());
-        }
+        if ($founds) {
+            uasort($founds, static fn (Handler $a, Handler $b) => $b->getId() <=> $a->getId());
 
-        return $sorted ?? array();
+            $last = reset($founds)->getId();
+        };
+
+        return $last + 1;
+    }
+
+    private function getHandlers(string $fbName, string|null $altName = null, int $id = null): array
+    {
+        return array_filter(
+            $this->handlers,
+            static fn (Handler $handler) => $handler->match($id, $fbName, $altName),
+        );
     }
 
     private function processSubscribe(EventSubscriberInterface|string $subscriber, string|int $event, array|string|null $subscribe): void

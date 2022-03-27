@@ -6,54 +6,45 @@ namespace Ekok\EventDispatcher;
 
 class Handler
 {
-    /** @var string|callable */
-    private $handler;
-
-    /** @var int|null */
-    private $position;
-
-    /** @var int */
-    private $priority = 0;
-
-    /** @var bool */
-    private $once = false;
-
     public function __construct(
-        callable|string $handler,
-        int $priority = null,
-        bool $once = null,
-        int $position = null,
-    ) {
-        $this->handler = $handler;
-        $this->priority = $priority ?? 0;
-        $this->once = $once ?? false;
-        $this->position = $position;
+        private string $eventName,
+        private $callable,
+        private int|null $priority,
+        private bool|null $once,
+        private int $id,
+    ) {}
+
+    public function getId(): int
+    {
+        return $this->id;
     }
 
-    public function getHandler(): string|callable
+    public function getEventName(): string
     {
-        return $this->handler;
+        return $this->eventName;
+    }
+
+    public function getCallable(): string|callable
+    {
+        return $this->callable;
     }
 
     public function isOnce(): bool
     {
-        return $this->once;
+        return $this->once ?? false;
     }
 
     public function getPriority(): int
     {
-        return $this->priority;
+        return $this->priority ?? 0;
     }
 
-    public function getPosition(): int|null
+    public function match(int|null $id, string|null ...$names): bool
     {
-        return $this->position;
-    }
+        $check = $this->getEventName();
 
-    public function setPosition(int $position): static
-    {
-        $this->position = $position;
-
-        return $this;
+        return (null === $id || $id === $this->id) && array_reduce($names, fn($match, $name) => $match || (
+            $name && ($name === $check || 0 === strcasecmp($name, $check))
+        ), false);
     }
 }

@@ -107,9 +107,33 @@ class DispatcherTest extends \Codeception\Test\Unit
 
     public function testEventName()
     {
-        $this->dispatcher->on(MyEvent::class, fn(MyEvent $event) => $event->stopPropagation());
+        $this->dispatcher->on(MyEvent::class, static fn(MyEvent $event) => $event->from_class = 'foo');
+        $this->dispatcher->on('my_event_name', static fn(MyEvent $event) => $event->from_name = 'bar');
 
         $this->dispatcher->dispatch($event = new MyEvent());
-        $this->assertTrue($event->isPropagationStopped());
+        $this->assertSame('bar', $event->from_name);
+        $this->assertSame('foo', $event->from_class);
+    }
+
+    public function testRemoveEvent()
+    {
+        $this->dispatcher->on('foo', static fn(Event $event) => $event->foo = 'bar');
+        $this->dispatcher->on('foo', static fn(Event $event) => $event->bar = 'baz');
+
+        $this->dispatcher->dispatch($event = Event::named('foo'));
+        $this->assertSame('bar', $event->foo);
+        $this->assertSame('baz', $event->bar);
+
+        $this->dispatcher->off('foo', 2);
+
+        $this->dispatcher->dispatch($event = Event::named('foo'));
+        $this->assertSame('bar', $event->foo);
+        $this->assertObjectNotHasAttribute('bar', $event);
+
+        $this->dispatcher->off('foo');
+
+        $this->dispatcher->dispatch($event = Event::named('foo'));
+        $this->assertObjectNotHasAttribute('foo', $event);
+        $this->assertObjectNotHasAttribute('bar', $event);
     }
 }
