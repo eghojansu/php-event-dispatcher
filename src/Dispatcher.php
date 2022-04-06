@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace Ekok\EventDispatcher;
 
+use Ekok\Container\ContainerAwareInterface;
 use Ekok\Container\Di;
-use Ekok\EventDispatcher\Attribute\Subscribe as AttributeSubscribe;
-use Ekok\Utils\Call;
-use Ekok\Utils\File;
-use Ekok\Utils\Str;
 
-class Dispatcher
+class Dispatcher implements ContainerAwareInterface
 {
+    /** @var Di */
+    private $di;
+
     /** @var array */
     private $handlers = array();
 
-    public function __construct(private Di $di)
-    {}
+    public function setContainer(Di $di)
+    {
+        $this->di = $di;
+    }
 
     public function dispatch(Event $event, string $eventName = null, bool $once = false): static
     {
@@ -29,54 +31,6 @@ class Dispatcher
 
             $event->isPropagationStopped() || $this->di->call($handler->getCallable(), $event);
         });
-
-        return $this;
-    }
-
-    public function loadClass(string|object $class): static
-    {
-        if (is_string($class) && is_subclass_of($class, EventSubscriberInterface::class)) {
-            return $this->addSubscriber($class);
-        }
-
-        $ref = new \ReflectionClass($class);
-
-        if (!$ref->isInstantiable()) {
-            return $this;
-        }
-
-        $attrs = $ref->getAttributes(AttributeSubscribe::class);
-
-        /** @var AttributeSubscribe|null */
-        $attr = $attrs ? $attrs[0]->newInstance() : null;
-        $listens = $attr?->listens ?? array();
-
-        foreach ($ref->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
-            $handler = Call::standarize($class, $method->name);
-
-            if (!$attrs = $method->getAttributes(AttributeSubscribe::class)) {
-                if (Str::equals($method->name, ...$listens)) {
-                    $this->on($method->name, $handler);
-                }
-
-                continue;
-            }
-
-            /** @var AttributeSubscribe */
-            $attr = $attrs[0]->newInstance();
-            $registers = $attr->listens ?? array($method->name);
-
-            array_walk($registers, fn (string $event) => $this->on($event, $handler));
-        }
-
-        return $this;
-    }
-
-    public function load(string $directory): static
-    {
-        $classes = File::getClassByScan($directory);
-
-        array_walk($classes, fn (string $class) => $this->loadClass($class));
 
         return $this;
     }

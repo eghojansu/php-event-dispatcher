@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "ekok/php-container",
-            "version": "v0.2.1",
+            "version": "v0.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/eghojansu/php-container.git",
-                "reference": "768fbc2c7996c685fd99be7852a209dea7b28905"
+                "reference": "3a840db6df9f5e3ae2eed8bcdcf2521572f87975"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eghojansu/php-container/zipball/768fbc2c7996c685fd99be7852a209dea7b28905",
-                "reference": "768fbc2c7996c685fd99be7852a209dea7b28905",
+                "url": "https://api.github.com/repos/eghojansu/php-container/zipball/3a840db6df9f5e3ae2eed8bcdcf2521572f87975",
+                "reference": "3a840db6df9f5e3ae2eed8bcdcf2521572f87975",
                 "shasum": ""
             },
             "require": {
@@ -48,9 +48,9 @@
             "description": "PHP Container",
             "support": {
                 "issues": "https://github.com/eghojansu/php-container/issues",
-                "source": "https://github.com/eghojansu/php-container/tree/v0.2.1"
+                "source": "https://github.com/eghojansu/php-container/tree/v0.2.3"
             },
-            "time": "2022-04-06T03:09:08+00:00"
+            "time": "2022-04-06T05:55:07+00:00"
         },
         {
             "name": "ekok/php-utils",

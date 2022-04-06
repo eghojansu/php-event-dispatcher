@@ -9,13 +9,10 @@ class DispatcherTest extends \Codeception\Test\Unit
     /** @var Dispatcher */
     private $dispatcher;
 
-    /** @var Di */
-    private $di;
-
     public function _before()
     {
-        $this->di = new Di();
-        $this->dispatcher = new Dispatcher($this->di);
+        $this->dispatcher = new Dispatcher();
+        $this->dispatcher->setContainer(new Di());
     }
 
     public function testDispatcher()
@@ -135,22 +132,5 @@ class DispatcherTest extends \Codeception\Test\Unit
         $this->dispatcher->dispatch($event = Event::named('foo'));
         $this->assertObjectNotHasAttribute('foo', $event);
         $this->assertObjectNotHasAttribute('bar', $event);
-    }
-
-    public function testLoad()
-    {
-        $this->dispatcher->load(TEST_DATA . '/classes');
-
-        $this->dispatcher->dispatch($event = Event::named('onBar'));
-        $this->assertTrue($event->isPropagationStopped());
-
-        $this->dispatcher->dispatch($event = Event::named('onBaz'));
-        $this->assertTrue($event->isPropagationStopped());
-
-        $this->dispatcher->dispatch($event = Event::named('me'));
-        $this->assertTrue($event->isPropagationStopped());
-
-        $this->dispatcher->dispatch($event = Event::named('onQux'));
-        $this->assertFalse($event->isPropagationStopped());
     }
 }
