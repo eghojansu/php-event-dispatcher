@@ -136,4 +136,21 @@ class DispatcherTest extends \Codeception\Test\Unit
         $this->assertObjectNotHasAttribute('foo', $event);
         $this->assertObjectNotHasAttribute('bar', $event);
     }
+
+    public function testLoad()
+    {
+        $this->dispatcher->load(TEST_DATA . '/classes');
+
+        $this->dispatcher->dispatch($event = Event::named('onBar'));
+        $this->assertTrue($event->isPropagationStopped());
+
+        $this->dispatcher->dispatch($event = Event::named('onBaz'));
+        $this->assertTrue($event->isPropagationStopped());
+
+        $this->dispatcher->dispatch($event = Event::named('me'));
+        $this->assertTrue($event->isPropagationStopped());
+
+        $this->dispatcher->dispatch($event = Event::named('onQux'));
+        $this->assertFalse($event->isPropagationStopped());
+    }
 }
