@@ -11,8 +11,7 @@ class DispatcherTest extends \Codeception\Test\Unit
 
     public function _before()
     {
-        $this->dispatcher = new Dispatcher();
-        $this->dispatcher->setContainer(new Di());
+        $this->dispatcher = new Dispatcher(new Di());
     }
 
     public function testDispatcher()

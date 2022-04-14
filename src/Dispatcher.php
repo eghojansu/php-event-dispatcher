@@ -4,21 +4,15 @@ declare(strict_types=1);
 
 namespace Ekok\EventDispatcher;
 
-use Ekok\Container\ContainerAwareInterface;
 use Ekok\Container\Di;
 
-class Dispatcher implements ContainerAwareInterface
+class Dispatcher
 {
-    /** @var Di */
-    private $di;
-
     /** @var array */
     private $handlers = array();
 
-    public function setContainer(Di $di)
-    {
-        $this->di = $di;
-    }
+    public function __construct(private Di $di)
+    {}
 
     public function dispatch(Event $event, string $eventName = null, bool $once = false): static
     {
